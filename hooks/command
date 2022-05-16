@@ -33,17 +33,8 @@ buildkite-agent artifact download \
 echo "--- :junit: Processing the junits"
 
 set +e
-docker \
-  --log-level "error" \
-  run \
-    --rm \
-    --volume "$artifacts_dir:/junits" \
-    --volume "$PLUGIN_DIR/ruby:/src" \
-    --env "BUILDKITE_PLUGIN_JUNIT_ANNOTATE_JOB_UUID_FILE_PATTERN=${BUILDKITE_PLUGIN_JUNIT_ANNOTATE_JOB_UUID_FILE_PATTERN:-}" \
-    --env "BUILDKITE_PLUGIN_JUNIT_ANNOTATE_FAILURE_FORMAT=${BUILDKITE_PLUGIN_JUNIT_ANNOTATE_FAILURE_FORMAT:-}" \
-    --env "BUILDKITE_PLUGIN_JUNIT_ANNOTATE_REPORT_SLOWEST=${BUILDKITE_PLUGIN_JUNIT_ANNOTATE_REPORT_SLOWEST:-}" \
-    ruby:2.7-alpine ruby /src/bin/annotate /junits \
-      > "$annotation_path"
+
+ruby "$PLUGIN_DIR/ruby/bin/annotate" "$artifacts_dir" > "$annotation_path"
 
 if [[ $? -eq 64 ]]; then # special exit code to signal test failures
   annotation_style="error"
